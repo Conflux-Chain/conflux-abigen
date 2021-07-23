@@ -6,11 +6,17 @@ This page introduces the concept of server side native Dapps: Go language bindin
 ## How to use
 
 ### Install
+download the code
+```
+$ git clone https://github.com/Conflux-Chain/conflux-abigen.git
+```
+
+then install
 ```
 $ go install ./cmd/cfxabigen
 ```
 
-The exectuion file named `cfxabigen` will install to `$GOPATH/bin/cfxabigen`
+The exectuion file named `cfxabigen` will be installed to `$GOPATH/bin/cfxabigen`
 
 ### Generating the bindings
 
