@@ -6,7 +6,9 @@ import (
 	"math/big"
 	"time"
 
-	"abigen/bind"
+	"github.com/Conflux-Chain/conflux-abigen/bind"
+
+	// "abigen/bind"
 
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
 	"github.com/Conflux-Chain/go-conflux-sdk/middleware"

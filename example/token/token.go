@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"strings"
 
-	"abigen/bind"
+	"github.com/Conflux-Chain/conflux-abigen/bind"
 
 	types "github.com/Conflux-Chain/go-conflux-sdk/types"
 	"github.com/ethereum/go-ethereum"

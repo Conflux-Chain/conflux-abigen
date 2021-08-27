@@ -1,4 +1,4 @@
-module abigen
+module github.com/Conflux-Chain/conflux-abigen
 
 go 1.15
 
