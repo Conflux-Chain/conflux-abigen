@@ -25,9 +25,9 @@ import (
 	"regexp"
 	"strings"
 
-	"abigen/internal/flags"
+	"github.com/Conflux-Chain/conflux-abigen/internal/flags"
 
-	"abigen/bind"
+	"github.com/Conflux-Chain/conflux-abigen/bind"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/cmd/utils"

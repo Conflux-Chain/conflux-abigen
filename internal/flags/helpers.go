@@ -146,7 +146,7 @@ func NewApp(gitCommit, gitDate, usage string) *cli.App {
 	app.Author = ""
 	app.Email = ""
 	// app.Version = params.VersionWithCommit(gitCommit, gitDate)
-	app.Version = "v1.0.10"
+	app.Version = "v0.1.0"
 	app.Usage = usage
 	return app
 }
