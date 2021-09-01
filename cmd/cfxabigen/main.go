@@ -25,9 +25,9 @@ import (
 	"regexp"
 	"strings"
 
-	"abigen/internal/flags"
+	"github.com/Conflux-Chain/conflux-abigen/internal/flags"
 
-	"abigen/bind"
+	"github.com/Conflux-Chain/conflux-abigen/bind"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/cmd/utils"
@@ -103,7 +103,7 @@ var (
 )
 
 func init() {
-	app = flags.NewApp(gitCommit, gitDate, "ethereum checkpoint helper tool")
+	app = flags.NewApp(gitCommit, gitDate, "conflux checkpoint helper tool")
 	app.Flags = []cli.Flag{
 		abiFlag,
 		binFlag,
