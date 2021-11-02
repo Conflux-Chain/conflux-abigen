@@ -59,7 +59,7 @@ type ContractFilterer interface {
 
 	// SubscribeLogs creates a background log filtering operation, returning
 	// a subscription immediately, which can be used to stream the found events.
-	SubscribeLogs(logChannel chan types.Log, chainReorgChannel chan types.ChainReorg, filter types.LogFilter) (*rpc.ClientSubscription, error)
+	SubscribeLogs(channel chan types.SubscriptionLog, filter types.LogFilter) (*rpc.ClientSubscription, error)
 }
 
 // DeployBackend wraps the operations needed by WaitMined and WaitDeployed.
