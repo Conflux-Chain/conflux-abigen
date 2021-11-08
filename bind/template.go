@@ -361,7 +361,7 @@ var (
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}BulkCaller) {{.Normalized.Name}}(bulkcaller bulk.BulkCaller, opts *bind.CallOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) ({{if .Structured}}*struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}*{{bindtype .Type $structs}},{{end}}{{end}} ) {
+		func (_{{$contract.Type}} *{{$contract.Type}}BulkCaller) {{.Normalized.Name}}(bulkcaller bulk.BulkCaller, opts *bind.CallOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) ({{if .Structured}}*struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}*{{bindtype .Type $structs}},{{end}}{{end}} *error) {
 
 			if opts == nil {
 				opts = new(bind.CallOpts)
@@ -374,6 +374,7 @@ var (
 			{{range $i, $t := .Normalized.Outputs}}
 			out{{$i}} := new({{bindtype .Type $structs}}){{end}}
 			{{end}}
+			err := new(error)
 
 			outDecoder := func(rawOut []byte) error {
 				out := []interface{}{}
@@ -393,11 +394,11 @@ var (
 			}
 			
 
-			bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, outDecoder)
+			bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, outDecoder, err)
 			{{if .Structured}}
-			return outstruct
+			return outstruct, err
 			{{else}}
-			return {{range $i, $t := .Normalized.Outputs}} out{{$i}}{{end}}
+			return {{range $i, $t := .Normalized.Outputs}} out{{$i}},{{end}} err
 			{{end}}
 		}
 
@@ -599,7 +600,7 @@ var (
 		// Watch{{.Normalized.Name}} is a free log subscription operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}OrChainReorg, reorgs chan<- types.ChainReorg{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (event.Subscription, error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}OrChainReorg {{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (event.Subscription, error) {
 			{{range .Normalized.Inputs}}
 			{{if .Indexed}}var {{.Name}}Rule []interface{}
 			for _, {{.Name}}Item := range {{.Name}} {
