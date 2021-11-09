@@ -143,7 +143,7 @@ func FlagCategory(flag cli.Flag, flagGroups []FlagGroup) string {
 func NewApp(gitCommit, gitDate, usage string) *cli.App {
 	app := cli.NewApp()
 	app.Name = filepath.Base(os.Args[0])
-	app.Version = "v0.1.0"
+	app.Version = "v0.1.1"
 	app.Description = "Migrated from Ethereum tool Abigen, used with go-conflux-sdk version not large than v1.0.10"
 	app.Usage = usage
 	app.CustomAppHelpTemplate = `
