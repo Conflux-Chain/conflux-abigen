@@ -18,3 +18,4 @@
 demo
 native-bindings.md
 .gitignore
+.DS_Store

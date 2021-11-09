@@ -128,8 +128,30 @@ func (c *BoundContract) Call(opts *CallOpts, results *[]interface{}, method stri
 			return ErrNoCode
 		}
 	}
-	// }
 
+	if len(*results) == 0 {
+		res, err := c.abi.Unpack(method, output)
+		*results = res
+		return err
+	}
+	res := *results
+	return c.abi.UnpackIntoInterface(res[0], method, output)
+}
+
+func (c *BoundContract) GenRequest(opts *CallOpts, method string, params ...interface{}) types.CallRequest {
+	// Don't crash on a lazy user
+	if opts == nil {
+		opts = new(CallOpts)
+	}
+	// Pack the input, call and unpack the results
+	input, _ := c.abi.Pack(method, params...)
+	inputStr := hexutil.Bytes(input).String()
+
+	msg := types.CallRequest{From: opts.From, To: &c.address, Data: &inputStr}
+	return msg
+}
+
+func (c *BoundContract) DecodeOutput(results *[]interface{}, output []byte, method string) error {
 	if len(*results) == 0 {
 		res, err := c.abi.Unpack(method, output)
 		*results = res
@@ -188,6 +210,21 @@ func (c *BoundContract) transact(opts *TransactOpts, contract *types.Address, in
 	return &utx, &hash, err
 }
 
+func (c *BoundContract) GenUnsignedTransaction(opts *TransactOpts, method string, params ...interface{}) types.UnsignedTransaction {
+	input, _ := c.abi.Pack(method, params...)
+
+	utxBase := opts
+	if opts == nil {
+		utxBase = &TransactOpts{}
+	}
+
+	return types.UnsignedTransaction{
+		UnsignedTransactionBase: types.UnsignedTransactionBase(*utxBase),
+		To:                      &c.address,
+		Data:                    types.NewBytes(input),
+	}
+}
+
 // FilterLogs filters contract logs for past blocks, returning the necessary
 // channels to construct a strongly typed bound iterator on top of them.
 func (c *BoundContract) FilterLogs(opts *FilterOpts, name string, query ...[]interface{}) (chan types.Log, error) {
@@ -231,7 +268,7 @@ func (c *BoundContract) FilterLogs(opts *FilterOpts, name string, query ...[]int
 
 // WatchLogs filters subscribes to contract logs for future blocks, returning a
 // subscription object that can be used to tear down the watcher.
-func (c *BoundContract) WatchLogs(opts *WatchOpts, name string, query ...[]interface{}) (chan types.Log, chan types.ChainReorg, event.Subscription, error) {
+func (c *BoundContract) WatchLogs(opts *WatchOpts, name string, query ...[]interface{}) (chan types.SubscriptionLog, event.Subscription, error) {
 	// Don't crash on a lazy user
 	if opts == nil {
 		opts = new(WatchOpts)
@@ -242,11 +279,10 @@ func (c *BoundContract) WatchLogs(opts *WatchOpts, name string, query ...[]inter
 
 	topics, err := abi.MakeTopics(query...)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	// Start the background filtering
-	logs := make(chan types.Log, 128)
-	chainReogs := make(chan types.ChainReorg, 128)
+	logs := make(chan types.SubscriptionLog, 128)
 
 	config := types.LogFilter{
 		Address: []types.Address{c.address},
@@ -255,11 +291,11 @@ func (c *BoundContract) WatchLogs(opts *WatchOpts, name string, query ...[]inter
 	if opts.Start != nil {
 		config.FromEpoch = opts.Start
 	}
-	sub, err := c.filterer.SubscribeLogs(logs, chainReogs, config)
+	sub, err := c.filterer.SubscribeLogs(logs, config)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-	return logs, chainReogs, sub, nil
+	return logs, sub, nil
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.

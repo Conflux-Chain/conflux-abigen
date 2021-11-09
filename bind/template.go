@@ -93,7 +93,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/Conflux-Chain/conflux-abigen"
+	"github.com/Conflux-Chain/conflux-abigen/bind"
+	"github.com/Conflux-Chain/go-conflux-sdk/cfxclient/bulk"
 
 	types "github.com/Conflux-Chain/go-conflux-sdk/types"
 	"github.com/ethereum/go-ethereum"
@@ -170,8 +171,19 @@ var (
 	  contract *bind.BoundContract // Generic contract wrapper for the low level calls
 	}
 
+	// {{.Type}}BulkCaller is an auto generated read-only Go binding around an Conflux contract.
+	type {{.Type}}BulkCaller struct {
+	  contract *bind.BoundContract // Generic contract wrapper for the low level calls
+	}	
+
 	// {{.Type}}Transactor is an auto generated write-only Go binding around an Conflux contract.
 	type {{.Type}}Transactor struct {
+	  contract *bind.BoundContract // Generic contract wrapper for the low level calls
+	}
+
+
+	// {{.Type}}BulkTransactor is an auto generated write-only Go binding around an Conflux contract.
+	type {{.Type}}BulkTransactor struct {
 	  contract *bind.BoundContract // Generic contract wrapper for the low level calls
 	}
 
@@ -253,6 +265,24 @@ var (
  	  return &{{.Type}}Filterer{contract: contract}, nil
  	}
 
+	// New{{.Type}}Caller creates a new read-only instance of {{.Type}}, bound to a specific deployed contract.
+	func New{{.Type}}BulkCaller(address types.Address, caller bind.ContractCaller) (*{{.Type}}BulkCaller, error) {
+	  contract, err := bind{{.Type}}(address, caller, nil, nil)
+	  if err != nil {
+	    return nil, err
+	  }
+	  return &{{.Type}}BulkCaller{contract: contract}, nil
+	}
+
+	// New{{.Type}}BulkTransactor creates a new write-only instance of {{.Type}}, bound to a specific deployed contract.
+	func New{{.Type}}BulkTransactor(address types.Address, transactor bind.ContractTransactor) (*{{.Type}}BulkTransactor, error) {
+	  contract, err := bind{{.Type}}(address, nil, transactor, nil)
+	  if err != nil {
+	    return nil, err
+	  }
+	  return &{{.Type}}BulkTransactor{contract: contract}, nil
+	}
+
 	// bind{{.Type}} binds a generic wrapper to an already deployed contract.
 	func bind{{.Type}}(address types.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	  parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
@@ -327,6 +357,55 @@ var (
 			{{end}}
 		}
 
+
+		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
+		//
+		// Solidity: {{.Original.String}}
+		func (_{{$contract.Type}} *{{$contract.Type}}BulkCaller) {{.Normalized.Name}}(bulkcaller bulk.BulkCaller, opts *bind.CallOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) ({{if .Structured}}*struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}*{{bindtype .Type $structs}},{{end}}{{end}} *error) {
+
+			if opts == nil {
+				opts = new(bind.CallOpts)
+			}
+			msg := _MyToken.contract.GenRequest(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+
+			{{if .Structured}}
+			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
+			{{else}}
+			{{range $i, $t := .Normalized.Outputs}}
+			out{{$i}} := new({{bindtype .Type $structs}}){{end}}
+			{{end}}
+			err := new(error)
+
+			outDecoder := func(rawOut []byte) error {
+				out := []interface{}{}
+				err := _MyToken.contract.DecodeOutput(&out, rawOut, "{{.Original.Name}}")
+				if err != nil {
+					return err
+				}
+
+				{{if .Structured}}
+				{{range $i, $t := .Normalized.Outputs}} 
+				outstruct.{{.Name}} = *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
+				{{else}}
+				{{range $i, $t := .Normalized.Outputs}}
+				*out{{$i}} = *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
+				{{end}}
+				return nil
+			}
+			
+
+			bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, outDecoder, err)
+			{{if .Structured}}
+			return outstruct, err
+			{{else}}
+			return {{range $i, $t := .Normalized.Outputs}} out{{$i}},{{end}} err
+			{{end}}
+		}
+
+		
+
+		
+
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
@@ -348,6 +427,13 @@ var (
 		// Solidity: {{.Original.String}}
 		func (_{{$contract.Type}} *{{$contract.Type}}Transactor) {{.Normalized.Name}}(opts *bind.TransactOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) (*types.UnsignedTransaction, *types.Hash, error) {
 			return _{{$contract.Type}}.contract.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		}
+
+		// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
+		//
+		// Solidity: {{.Original.String}}
+		func (_{{$contract.Type}} *{{$contract.Type}}BulkTransactor) {{.Normalized.Name}}(opts *bind.TransactOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) types.UnsignedTransaction {
+			return _{{$contract.Type}}.contract.GenUnsignedTransaction(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 
 		// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
@@ -488,6 +574,12 @@ var (
 			Raw types.Log // Blockchain specific contextual infos
 		}
 
+		// {{$contract.Type}}{{.Normalized.Name}}OrChainReorg represents a {{.Normalized.Name}} subscription event raised by the {{$contract.Type}} contract.
+		type {{$contract.Type}}{{.Normalized.Name}}OrChainReorg struct {
+			Event      *{{$contract.Type}}{{.Normalized.Name}}
+			ChainReorg *types.ChainReorg
+		}
+
 		// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
@@ -508,27 +600,27 @@ var (
 		// Watch{{.Normalized.Name}} is a free log subscription operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}, reorgs chan<- types.ChainReorg{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (event.Subscription, error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}OrChainReorg {{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (event.Subscription, error) {
 			{{range .Normalized.Inputs}}
 			{{if .Indexed}}var {{.Name}}Rule []interface{}
 			for _, {{.Name}}Item := range {{.Name}} {
 				{{.Name}}Rule = append({{.Name}}Rule, {{.Name}}Item)
 			}{{end}}{{end}}
 
-			logs, _reorgs, sub, err := _{{$contract.Type}}.contract.WatchLogs(opts, "{{.Original.Name}}"{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}}Rule{{end}}{{end}})
+			logs, sub, err := _{{$contract.Type}}.contract.WatchLogs(opts, "{{.Original.Name}}"{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}}Rule{{end}}{{end}})
 			if err != nil {
 				return nil, err
 			}
 
-			go func() {
-				for {
-					r, ok := <-_reorgs
-					if !ok {
-						return
-					}
-					reorgs <- r
-				}
-			}()
+			// go func() {
+			// 	for {
+			// 		r, ok := <-_reorgs
+			// 		if !ok {
+			// 			return
+			// 		}
+			// 		reorgs <- r
+			// 	}
+			// }()
 
 			return event.NewSubscription(func(quit <-chan struct{}) error {
 				defer sub.Unsubscribe()
@@ -536,11 +628,17 @@ var (
 					select {
 					case log := <-logs:
 						// New log arrived, parse the event and forward to the user
-						event := new({{$contract.Type}}{{.Normalized.Name}})
-						if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Original.Name}}", log); err != nil {
-							return err
+						event := new({{$contract.Type}}{{.Normalized.Name}}OrChainReorg)
+						event.Event = new({{$contract.Type}}{{.Normalized.Name}})
+
+						if log.ChainReorg == nil {
+							if err := _{{$contract.Type}}.contract.UnpackLog(event.Event, "{{.Original.Name}}", *log.Log); err != nil {
+								return err
+							}
+							event.Event.Raw = *log.Log
+						} else {
+							event.ChainReorg = log.ChainReorg
 						}
-						event.Raw = log
 
 						select {
 						case sink <- event:
