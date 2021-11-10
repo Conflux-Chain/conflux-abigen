@@ -21,7 +21,7 @@ or install from local
 $ git clone https://github.com/Conflux-Chain/conflux-abigen.git
 ```
 
-1. install
+2. install
 ```
 $ go install ./cmd/cfxabigen
 ```
