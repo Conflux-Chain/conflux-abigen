@@ -336,24 +336,24 @@ var (
 		// Solidity: {{.Original.String}}
 		func (_{{$contract.Type}} *{{$contract.Type}}Caller) {{.Normalized.Name}}(opts *bind.CallOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
 			var out []interface{}
-			err := _{{$contract.Type}}.contract.Call(opts, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+			__err := _{{$contract.Type}}.contract.Call(opts, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 			{{if .Structured}}
 			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
-			if err != nil {
-				return *outstruct, err
+			if __err != nil {
+				return *outstruct, __err
 			}
 			{{range $i, $t := .Normalized.Outputs}} 
 			outstruct.{{.Name}} = *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
 
-			return *outstruct, err
+			return *outstruct, __err
 			{{else}}
-			if err != nil {
-				return {{range $i, $_ := .Normalized.Outputs}}*new({{bindtype .Type $structs}}), {{end}} err
+			if __err != nil {
+				return {{range $i, $_ := .Normalized.Outputs}}*new({{bindtype .Type $structs}}), {{end}} __err
 			}
 			{{range $i, $t := .Normalized.Outputs}}
 			out{{$i}} := *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
 			
-			return {{range $i, $t := .Normalized.Outputs}}out{{$i}}, {{end}} err
+			return {{range $i, $t := .Normalized.Outputs}}out{{$i}}, {{end}} __err
 			{{end}}
 		}
 
@@ -366,7 +366,7 @@ var (
 			if opts == nil {
 				opts = new(bind.CallOpts)
 			}
-			msg := _MyToken.contract.GenRequest(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+			__request := _{{$contract.Type}}.contract.GenRequest(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 
 			{{if .Structured}}
 			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
@@ -374,11 +374,11 @@ var (
 			{{range $i, $t := .Normalized.Outputs}}
 			out{{$i}} := new({{bindtype .Type $structs}}){{end}}
 			{{end}}
-			err := new(error)
+			__err := new(error)
 
 			outDecoder := func(rawOut []byte) error {
 				out := []interface{}{}
-				err := _MyToken.contract.DecodeOutput(&out, rawOut, "{{.Original.Name}}")
+				err := _{{$contract.Type}}.contract.DecodeOutput(&out, rawOut, "{{.Original.Name}}")
 				if err != nil {
 					return err
 				}
@@ -394,11 +394,11 @@ var (
 			}
 			
 
-			bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, outDecoder, err)
+			bulkcaller.Customer().ContractCall(__request, opts.EpochNumber, outDecoder, __err)
 			{{if .Structured}}
-			return outstruct, err
+			return outstruct, __err
 			{{else}}
-			return {{range $i, $t := .Normalized.Outputs}} out{{$i}},{{end}} err
+			return {{range $i, $t := .Normalized.Outputs}} out{{$i}},{{end}} __err
 			{{end}}
 		}
 
@@ -611,16 +611,6 @@ var (
 			if err != nil {
 				return nil, err
 			}
-
-			// go func() {
-			// 	for {
-			// 		r, ok := <-_reorgs
-			// 		if !ok {
-			// 			return
-			// 		}
-			// 		reorgs <- r
-			// 	}
-			// }()
 
 			return event.NewSubscription(func(quit <-chan struct{}) error {
 				defer sub.Unsubscribe()
